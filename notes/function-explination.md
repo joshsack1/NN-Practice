@@ -1,5 +1,23 @@
 # Neural Networks
 
+## Structure
+
+A neural network is structured as an input layer of neurons, connected through an arbitrary number of hidden layers, to a number of output layers sufficient to represent the classification.
+
+Neurons are connected through **Weights** and scaled by **Biases**
+
+### Weights
+
+A weight matrix contains all the learnable weights that connect neurons from the previous layer to the next one.
+As such it is a matrix of the previous layer's neurons by the next layer's neurons.
+
+The current layer, $x$ is multiplied by the weights layer $W$ as $W\times x$
+
+### Biases
+
+After multiplying each layer by its weights a bias vector, of the same number of inputs as the current layer.
+This is to allow neurons from shifting activation away from zero, which multiplication alone would not allow.
+
 ## Encoding
 
 ### One-Hot Encoding
@@ -59,6 +77,10 @@ $$
 ```julia
 ReLU(x) = max.(x, 0)
 ```
+
+### Sigmoid
+If you need binary bounds, a sigmoid can be good, but they have fallen out of favor
+
 ## Methods
 
 ### Softmax
@@ -79,3 +101,9 @@ function shifted_softmax(logits)
     return exps ./ sum(exps, dims=1)
 end
 ```
+
+## Process
+**Main Loop:**
+### Forward Pass
+
+From each layer, working with the initial weights and biases, you can work forward to come up with a prediction

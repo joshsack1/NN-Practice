@@ -47,3 +47,39 @@ function cross_entropy(predicted, target)
     eps = 1e-10f0 # Define a small number to prevent taking the log of 0
     return -mean(sum(target .* log.(predicted .+ eps); dims=1))
 end
+#%% Constructing the neural network with 784 inputs, two layers of 16 hidden units, and 10 outputs
+function create_network(layers::AbstractVector{<:Integer})
+    # Matrix of W, b
+    params = Vector{Tuple{Matrix{Float32},Vector{Float32}}}()
+    for i in 1:(length(layers) - 1)
+        in_dim = layers[i]
+        out_dim = layers[i + 1]
+        W = 0.01f0 .* randn(Float32, out_dim, in_dim)
+        b = zeros(Float32, out_dim)
+        push!(params, (W, b))
+    end
+    return params
+end
+
+#%% Set up the option to do a forward pass prediction
+function forward(params, X; activation=reLU, final_softmax=true)
+    # X has the shape (input dims, batch_size)
+    # params is an array of (W,b) for each layer
+    z_vec = Vector{Matrix{Float32}}(undef, length(params))
+    a_vec = Vector{Matrix{Float32}}(undef, length(params) + 1)
+    a_vec[1] = X # Activation for the first layer
+    for i in length(params)
+        W, b = params[i]
+        # standard z[i] = W[i] * a[i-1] + b[i]
+        z_vec[i] = W * a_vec[i] .+ b
+        if i < length(params)
+            # Activation to hidden layers
+            a_vec[i + 1] = activation(z_vec[i])
+        elseif final_softmax
+            a_vec[i + 1] = shifted_softmax(z_vec[i])
+        else
+            a_vec[i + 1] = z_vec[i] # For raw logits
+        end
+    end
+    return z_vec, a_vec
+end
